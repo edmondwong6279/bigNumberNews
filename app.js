@@ -1,7 +1,7 @@
 // Set up server, GET method is just a JSON object with a url.
 // Example numbers:
 // 10m, 350 trillion, 5,500,000, 17.5 million
-// comma separated then period eg 123,456.98 
+// comma separated then period eg 123,456.98
 
 const express = require("express");
 // npm i node-fetch@2
@@ -13,20 +13,28 @@ const { URL, URLSearchParams } = require("url");
 const port = 3000;
 const app = express();
 
-// so we can access request body
-app.use(bodyParser.json());
+app.use(
+    bodyParser.json(),
+    express.urlencoded({
+        extended: true,
+    }),
+    express.static("public")
+);
 
 const searchRegex = [
-    /(\d*\.?\d*)+ ?thousands*/gi,
-    /(\d*\.?\d*)+( ?millions*|m)/gi,
-    /(\d*\.?\d*)+( ?billions*|bn)/gi,
-    /(\d*\.?\d*)+( ?trillions*|tn)/gi,
+    /(\d+\.?\d*)+ ?thousands*/gi,
+    /(\d+\.?\d*)+( ?millions*|m)/gi,
+    /(\d+\.?\d*)+( ?billions*|bn)/gi,
+    /(\d+\.?\d*)+( ?trillions*|tn)/gi,
     // any number over 1,000
-    /([1-9]{1}\d{0,2})(\,\d{3})+(\.\d*)*/g
+    /([1-9]{1}\d{0,2})(\,\d{3})+(\.\d*)*/g,
 ];
 
-app.get("/", async (req, res) => {
+app.post("/query", async (req, res) => {
+    console.log("IN GET");
     const fullUrl = req.body.url;
+    console.log(fullUrl);
+    console.log(req.url);
     const res1 = await fetch(fullUrl);
     const html = await res1.text();
     const body = extractor(html).text;
